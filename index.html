@@ -424,6 +424,9 @@
       <label class="field-label" for="fName">Your name (optional)</label>
       <input id="fName" class="field-input" type="text" placeholder="e.g. Priya">
 
+      <label class="field-label" for="fPassword">Password (required)</label>
+      <input id="fPassword" class="field-input" type="password" placeholder="Enter solution password">
+
       <div class="modal-error" id="modalError"></div>
     </div>
     <div class="modal-foot">
@@ -833,6 +836,7 @@ const fCategory = document.getElementById('fCategory');
 const fObjection = document.getElementById('fObjection');
 const fResponse = document.getElementById('fResponse');
 const fName = document.getElementById('fName');
+const fPassword = document.getElementById('fPassword');
 
 CATEGORIES.forEach(c=>{
   const opt = document.createElement('option');
@@ -846,6 +850,7 @@ function openModal(){
   fObjection.value = '';
   fResponse.value = '';
   fName.value = '';
+  fPassword.value = '';
   fCategory.value = CATEGORIES[0].code;
   if(!supabaseConfigured){
     modalError.innerHTML = '<strong style="color:#C0392B">⚠️ Supabase not configured</strong><br>Add your SUPABASE_URL and SUPABASE_ANON_KEY at the top of the script to enable submissions. <a href="#" style="color:#C0392B; text-decoration:underline;">See setup instructions in code comments.</a>';
@@ -867,9 +872,21 @@ document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && modalOverla
 submitBtn.addEventListener('click', async ()=>{
   if(!supabaseConfigured) return;
   const qText = fObjection.value.trim();
+  const password = fPassword.value.trim();
   if(!qText){
     modalError.textContent = 'Please fill in what the customer said.';
     fObjection.focus();
+    return;
+  }
+  if(!password){
+    modalError.textContent = 'Please enter the solution password to add an objection.';
+    fPassword.focus();
+    return;
+  }
+  const expectedPassword = 'solution';
+  if(password !== expectedPassword){
+    modalError.textContent = 'Incorrect password. Please enter the correct solution password.';
+    fPassword.focus();
     return;
   }
   const catInfo = CATEGORIES.find(c=>c.code === fCategory.value) || CATEGORIES[0];
