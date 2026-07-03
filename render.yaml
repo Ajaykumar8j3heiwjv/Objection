@@ -1,0 +1,8 @@
+name: Objection Playbook
+runtime: static
+staticPublishPath: .
+
+redirects:
+  - source: "/*"
+    destination: "/index.html"
+    type: 200

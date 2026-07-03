@@ -473,16 +473,38 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ====== SUPABASE CONFIG — paste your values here ======
+/* ====== SUPABASE CONFIG — SETUP INSTRUCTIONS ======
    1. Go to your Supabase project → Settings → API
    2. Copy "Project URL" into SUPABASE_URL
    3. Copy "anon public" key into SUPABASE_ANON_KEY
-   (The anon key is safe to expose in client code — access is controlled
-   by the Row Level Security policies you set up in Supabase, not by
-   keeping this key secret.)
+   
+   DATABASE SETUP:
+   In Supabase SQL Editor, run:
+   
+   CREATE TABLE objections (
+     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+     cat VARCHAR(5) NOT NULL,
+     cat_name VARCHAR(100) NOT NULL,
+     color VARCHAR(7) NOT NULL,
+     q TEXT NOT NULL,
+     a TEXT,
+     submitted_by VARCHAR(100),
+     created_at TIMESTAMP DEFAULT NOW()
+   );
+   
+   Enable Row Level Security:
+   ALTER TABLE objections ENABLE ROW LEVEL SECURITY;
+   
+   CREATE POLICY "Allow public read access" ON objections
+     FOR SELECT USING (true);
+   
+   CREATE POLICY "Allow public insert" ON objections
+     FOR INSERT WITH CHECK (true);
+   
+   (The anon key is safe in client code — access is controlled by RLS.)
 ========================================================= */
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_PUBLIC_KEY";
+const SUPABASE_URL = ""; // PASTE your Supabase Project URL
+const SUPABASE_ANON_KEY = ""; // PASTE your anon public key
 
 let sbClient = null;
 const supabaseConfigured = SUPABASE_URL.startsWith('http') &&
@@ -776,7 +798,7 @@ function openModal(){
   fName.value = '';
   fCategory.value = CATEGORIES[0].code;
   if(!supabaseConfigured){
-    modalError.textContent = "Supabase isn't connected yet — this board can't save submissions until SUPABASE_URL and SUPABASE_ANON_KEY are set in the page code.";
+    modalError.innerHTML = '<strong style="color:#C0392B">⚠️ Supabase not configured</strong><br>Add your SUPABASE_URL and SUPABASE_ANON_KEY at the top of the script to enable submissions. <a href="#" style="color:#C0392B; text-decoration:underline;">See setup instructions in code comments.</a>';
     submitBtn.disabled = true;
   }else{
     submitBtn.disabled = false;
@@ -811,16 +833,24 @@ submitBtn.addEventListener('click', async ()=>{
   };
 
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Saving…';
+  submitBtn.textContent = 'Adding to board…';
   modalError.textContent = '';
 
   try{
     await saveSubmission(entry);
+    submitBtn.textContent = '✓ Added! Refreshing…';
+    await new Promise(r => setTimeout(r, 800)); // small delay for UX
     await loadSubmissions();
     closeModal();
   }catch(e){
     console.error('Submit failed:', e);
-    modalError.textContent = "Couldn't save to Supabase — check your table and RLS policies are set up correctly.";
+    const errMsg = e.message || e.toString();
+    modalError.innerHTML = `<strong>Couldn't save to Supabase:</strong><br>
+    ${escapeHtml(errMsg)}<br><br>
+    <small>Troubleshoot:<br>
+    • Check SUPABASE_URL and SUPABASE_ANON_KEY are correct<br>
+    • Verify the 'objections' table exists<br>
+    • Enable Row Level Security with INSERT policy</small>`;
   }finally{
     submitBtn.disabled = false;
     submitBtn.textContent = 'Add to board';
