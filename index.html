@@ -417,7 +417,7 @@
     <h1>Every objection is just a question the customer hasn't asked out loud yet.</h1>
     <p>A quick-reference card catalog from the objection-handling session — built for live calls. Tap a card to flip it and see the response script.</p>
     <div class="stat-strip">
-      <div class="stat"><div class="num">15</div><div class="lbl">Objections indexed</div></div>
+      <div class="stat"><div class="num">30</div><div class="lbl">Objections indexed</div></div>
       <div class="stat"><div class="num">8</div><div class="lbl">Categories</div></div>
       <div class="stat"><div class="num">BDA Ready</div><div class="lbl">Sales Scripts</div></div>
     </div>
@@ -573,7 +573,67 @@ const DATA = [
   {cat:"TM", catName:"Time & Commitment", color:"#6E56CF",
    q:"I'll join after 6 months.",
    a:"I appreciate your honesty. May I ask what's leading you to wait for six months? <strong>Is it because of finances, work commitments, studies, or another reason?</strong> Understanding this helps me determine whether waiting is genuinely the best option or if there's a suitable batch or payment plan available earlier.",
-   ask:"Ask: \"Is there something specific that needs to happen in the next 6 months, or would an earlier start be possible?\""}
+   ask:"Ask: \"Is there something specific that needs to happen in the next 6 months, or would an earlier start be possible?\""},
+  {cat:"CL", catName:"Closing Hesitations", color:"#B8860B",
+   q:"I'm preparing for government exams.",
+   a:"I completely understand, and I wish you the very best with your exam preparation. Government exams require a lot of focus and dedication. Just to understand your plan better, may I know which exam you're preparing for and when it's expected to take place? The reason I'm asking is that many aspirants also keep a backup career option ready because government exams can be highly competitive. <strong>Learning an industry-relevant skill alongside your preparation—or even after your exam—can improve your career opportunities.</strong> I'm not asking you to make a decision today. If you're comfortable, I can reconnect with you after your exam.",
+   ask:"Ask: \"After your exam, would you be open to exploring career options?\""},
+  {cat:"CF", catName:"Course Fit", color:"#C97B3E",
+   q:"I'm planning to pursue higher studies.",
+   a:"That's a great decision. Higher education can definitely strengthen your career profile. May I know what course you're planning to pursue and whether it's in India or abroad? Along with your higher studies, <strong>having practical industry skills can make your profile much stronger.</strong> Universities and employers value candidates who not only have academic knowledge but also real-world project experience. Completing this course before your higher studies can give you an additional advantage during internships and future placements.",
+   ask:"Ask: \"When does your higher studies program start — would you have time before that?\""},
+  {cat:"CP", catName:"Comparison & Alternatives", color:"#2B7DE9",
+   q:"I'm comparing different institutes.",
+   a:"That's a smart approach, and I always encourage learners to compare before making an investment. While comparing, I would recommend looking beyond just the course fee. <strong>Compare the curriculum, mentor quality, live sessions, practical projects, placement assistance, career support, learner reviews, and alumni outcomes.</strong> Every institute has its strengths, so it's important to choose the one that aligns with your career goals rather than simply choosing the cheapest option. If you'd like, I can explain what makes our program different.",
+   ask:"Ask: \"What factors are most important to you when comparing institutes?\""},
+  {cat:"PR", catName:"Pricing & Value", color:"#F2A93B",
+   q:"Another institute is offering the same course for a lower price.",
+   a:"I understand. Price is definitely an important factor, but it's equally important to understand what is included in that price. May I ask which institute you're comparing with? <strong>Sometimes lower-priced programs may not include live mentoring, career services, placement assistance, industry projects, or continuous learner support.</strong> Instead of comparing only the cost, let's compare the complete value you'll receive. The right investment is the one that gives you better career opportunities and long-term returns.",
+   ask:"Ask: \"What services does their lower-priced option include?\""},
+  {cat:"CF", catName:"Course Fit", color:"#C97B3E",
+   q:"I don't have confidence in coding.",
+   a:"I completely understand because many learners feel the same before they start. The good news is that coding is a skill—it isn't something people are born knowing. <strong>Our curriculum starts from the basics, and you'll learn gradually through simple concepts, practical exercises, mentor guidance, and projects.</strong> You won't be expected to know programming before joining. With consistent practice and the right guidance, most beginners become comfortable with coding over time.",
+   ask:"Ask: \"Would seeing our beginner-friendly curriculum help boost your confidence?\""},
+  {cat:"CL", catName:"Closing Hesitations", color:"#B8860B",
+   q:"I'll join after I receive my salary.",
+   a:"That makes complete sense. Managing finances responsibly is important. May I know approximately when you'll receive your salary? I'll make a note of the date and reconnect with you then. <strong>Meanwhile, if you'd like, I can also explain the EMI options available because sometimes learners prefer to start immediately instead of waiting for the next salary cycle.</strong>",
+   ask:"Ask: \"Would EMI options allow you to start sooner?\""},
+  {cat:"CG", catName:"Career & Life Gaps", color:"#7C5CBF",
+   q:"I recently lost my job.",
+   a:"I'm really sorry to hear that, and I understand this must be a difficult time. Many professionals choose to upskill during career transitions because it improves their chances of finding better opportunities. <strong>We also have flexible payment options that reduce the immediate financial burden.</strong> More importantly, the course focuses on practical skills, projects, interview preparation, and career guidance to help learners become job-ready. If you're comfortable, let's discuss your previous experience so I can suggest the most suitable learning path.",
+   ask:"Ask: \"What field were you working in, and would you like to stay in the same domain?\""},
+  {cat:"CF", catName:"Course Fit", color:"#C97B3E",
+   q:"I already have work experience.",
+   a:"That's great. Having experience gives you a strong foundation. May I know your current role and the number of years you've been working? Many experienced professionals join our programs not because they lack experience, but because <strong>they want to upgrade their skills, switch domains, earn promotions, or increase their salary.</strong> The technology industry evolves rapidly, and continuous learning helps professionals stay competitive.",
+   ask:"Ask: \"Are you looking to switch domains, get a promotion, or learn new technologies in your current field?\""},
+  {cat:"CL", catName:"Closing Hesitations", color:"#B8860B",
+   q:"My family isn't supporting this decision.",
+   a:"I understand, and that's a very common concern. Families naturally want to ensure that your investment is worthwhile. If they have questions regarding the curriculum, career opportunities, placement assistance, fees, or payment plans, <strong>I'd be happy to explain everything to them directly.</strong> Sometimes a clear understanding of the program helps families feel more confident about supporting the decision.",
+   ask:"Ask: \"Would a call with your family members help them understand the program better?\""},
+  {cat:"TR", catName:"Trust & Credibility", color:"#1F8A70",
+   q:"I need more reviews before deciding.",
+   a:"That's completely reasonable. Reviews help you understand other learners' experiences. However, I would recommend focusing on authentic reviews, learner success stories, project outcomes, and placement experiences rather than only star ratings. <strong>I can also share genuine testimonials, alumni success stories, and examples of learners who successfully transitioned into their careers</strong> after completing the program.",
+   ask:"Ask: \"Would speaking with a recent graduate help you make a decision?\""},
+  {cat:"CF", catName:"Course Fit", color:"#C97B3E",
+   q:"I'm not sure this course is suitable for me.",
+   a:"I appreciate your honesty. Before recommending any course, I'd like to understand your career goals. Could you tell me about your educational background, current role, and the type of career you're aiming for? <strong>Based on your goals, I'll honestly tell you whether this course is the right fit or if another program would be more suitable.</strong> My goal is to help you choose the best learning path, not simply enroll you in a course.",
+   ask:"Ask: \"What's your ideal career outcome in the next 12-18 months?\""},
+  {cat:"TM", catName:"Time & Commitment", color:"#6E56CF",
+   q:"I won't be able to attend live classes.",
+   a:"That's absolutely fine. Many of our learners have work or personal commitments that prevent them from attending every live session. That's why <strong>recorded sessions are available, allowing you to learn at your own pace and revisit concepts whenever needed.</strong> You'll still receive mentor support, assignments, projects, and learning resources, so you won't miss out on your learning journey.",
+   ask:"Ask: \"Would the flexibility to learn at your own pace work better for you?\""},
+  {cat:"TM", catName:"Time & Commitment", color:"#6E56CF",
+   q:"The course takes too much time.",
+   a:"I understand. It may seem like a long commitment initially. However, learning a professional skill takes time because it involves understanding concepts, practicing regularly, and building projects. <strong>Think of it as an investment in your career rather than just a course.</strong> A few months of dedicated learning can open opportunities that benefit you for many years. Consistency is much more important than speed.",
+   ask:"Ask: \"If we showed you how 2-3 hours daily can lead to career growth, would that change your perspective?\""},
+  {cat:"CL", catName:"Closing Hesitations", color:"#B8860B",
+   q:"I'll call you later.",
+   a:"Certainly, no problem at all. Before we end the call, may I know a convenient day and time when I can reconnect with you? That way, I can ensure I reach you when you're available instead of disturbing you unexpectedly. <strong>If you have any questions in the meantime, please feel free to reach out to me.</strong>",
+   ask:"Ask: \"When would be the best time for me to follow up with you?\""},
+  {cat:"CL", catName:"Closing Hesitations", color:"#B8860B",
+   q:"I'm just browsing for now.",
+   a:"That's absolutely fine. Many learners start by exploring different options before making a decision. If you don't mind, may I ask what motivated you to start looking into courses? <strong>Are you planning a career switch, looking for better job opportunities, or simply exploring new skills?</strong> Understanding your goals will help me provide relevant information without any pressure. Even if you're not planning to join immediately, I'd be happy to guide you so that whenever you're ready, you'll have the right information.",
+   ask:"Ask: \"What's the main reason you started exploring courses?\""}
 ];
 
 const catalog = document.getElementById('catalog');
