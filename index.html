@@ -37,6 +37,70 @@
   }
   a{color:inherit;}
 
+  body.gate-open{overflow:hidden;}
+
+  .access-gate{
+    position:fixed; inset:0; z-index:2200;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px; background:linear-gradient(135deg, #07170e 0%, #0f2b1d 100%);
+  }
+  .access-gate.hidden{display:none;}
+  .gate-card{
+    width:min(100%, 560px); border-radius:20px; overflow:hidden;
+    background:linear-gradient(135deg, #ffffff 0%, #f6fff9 100%);
+    box-shadow:0 25px 80px rgba(0,0,0,0.28); border:1px solid rgba(15,185,78,0.16);
+  }
+  .gate-head{
+    padding:28px 28px 18px; background:linear-gradient(90deg, #0FB94E 0%, #0E8C43 100%);
+    color:#fff;
+  }
+  .gate-brand{display:flex; align-items:center; gap:14px; margin-bottom:12px;}
+  .gate-brand img{width:58px; height:58px; border-radius:50%; background:#fff; padding:6px; object-fit:contain;}
+  .gate-brand h1{font-size:clamp(24px, 4vw, 34px); font-weight:700; line-height:1.1;}
+  .gate-brand p{font-size:14px; opacity:0.9; margin-top:8px;}
+  .gate-body{padding:24px 28px 28px;}
+  .gate-label{display:block; font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-mute); margin-bottom:8px;}
+  .gate-input{
+    width:100%; border:1px solid var(--line); border-radius:12px; padding:14px 16px;
+    font-size:18px; color:var(--text-dark); background:#fff; box-shadow:inset 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .gate-input:focus{outline:2px solid var(--amber); outline-offset:2px; border-color:var(--amber);}
+  .gate-btn{
+    margin-top:14px; width:100%; border:none; border-radius:12px; padding:14px 16px;
+    font-size:16px; font-weight:700; color:#fff; background:linear-gradient(90deg, #0FB94E 0%, #0E8C43 100%);
+    cursor:pointer; box-shadow:0 10px 20px rgba(15,185,78,0.2);
+  }
+  .gate-btn:hover{filter:brightness(0.96);}
+  .gate-error{min-height:20px; margin-top:12px; color:#c0392b; font-size:13px; font-weight:600;}
+  .gate-hint{margin-top:12px; color:var(--text-mute); font-size:13px;}
+
+  .card-actions{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:auto; padding-top:10px;}
+  .like-btn{
+    display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); background:#f8fffa; color:var(--text-dark);
+    border-radius:999px; padding:7px 11px; font-size:12px; font-weight:600; cursor:pointer; transition:all .15s ease;
+  }
+  .like-btn:hover{border-color:var(--amber); color:var(--teal);}
+  .like-btn.liked{background:rgba(15,185,78,0.12); border-color:var(--amber); color:var(--teal);}
+  .like-btn .heart{font-size:14px; line-height:1;}
+  .answer-box{display:flex; align-items:center; gap:8px; flex:1; min-width:0;}
+  .answer-input{
+    flex:1; min-width:0; border:1px solid var(--line); border-radius:999px; padding:7px 11px; font-size:12px; color:var(--text-dark);
+    background:#fff;
+  }
+  .answer-input:focus{outline:2px solid var(--amber); outline-offset:1px; border-color:var(--amber);}
+  .answer-btn{
+    border:none; border-radius:999px; padding:7px 11px; font-size:12px; font-weight:600; cursor:pointer; color:#fff;
+    background:linear-gradient(90deg, var(--amber) 0%, var(--teal) 100%);
+  }
+  .answer-preview{
+    margin-top:8px; font-size:11.5px; color:var(--text-mute); line-height:1.45; background:#f8fffa; border:1px solid var(--line);
+    border-radius:8px; padding:8px 9px;
+  }
+  .question-chip{
+    margin-top:10px; display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:#f6fff9;
+    border:1px solid var(--line); color:var(--text-mute); font-size:11px; font-family:var(--mono); letter-spacing:0.03em;
+  }
+
   /* ---------- Top bar ---------- */
   .topbar{
     position:sticky; top:0; z-index:50;
@@ -320,6 +384,9 @@
   }
   .add-btn:hover{filter:brightness(0.94);}
   .add-btn:focus-visible{outline:2px solid var(--ink); outline-offset:2px;}
+  #productAnalysisBtn{
+    background:var(--ink); color:#fff;
+  }
 
   .modal-overlay{
     display:none;
@@ -386,6 +453,27 @@
 </head>
 <body>
 
+<div class="access-gate" id="accessGate">
+  <div class="gate-card">
+    <div class="gate-head">
+      <div class="gate-brand">
+        <img src="logo.jpg" alt="GUVI logo">
+        <div>
+          <h1>Enter the playbook</h1>
+          <p>Access the sales objection reference securely.</p>
+        </div>
+      </div>
+    </div>
+    <div class="gate-body">
+      <label class="gate-label" for="sitePassword">Password</label>
+      <input class="gate-input" id="sitePassword" type="password" placeholder="Enter password" autocomplete="current-password">
+      <button class="gate-btn" id="unlockBtn" type="button">Unlock site</button>
+      <div class="gate-error" id="gateError"></div>
+      <div class="gate-hint">Tip: use the password you set for this playbook.</div>
+    </div>
+  </div>
+</div>
+
 <div class="topbar">
   <div class="brand">
     <span class="logo-slot">
@@ -399,6 +487,7 @@
     <input id="searchInput" type="text" placeholder="Search an objection…" autocomplete="off">
   </div>
   <div class="count-pill" id="countPill">12 cards</div>
+  <a class="add-btn" id="productAnalysisBtn" href="products.html" style="text-decoration:none; display:inline-flex; align-items:center;">📊 Product Analysis</a>
   <button class="add-btn" id="openModalBtn" type="button">+ Add objection</button>
 </div>
 
@@ -665,6 +754,10 @@ const catalog = document.getElementById('catalog');
 const countPill = document.getElementById('countPill');
 const searchInput = document.getElementById('searchInput');
 const chips = document.querySelectorAll('.chip');
+const accessGate = document.getElementById('accessGate');
+const unlockBtn = document.getElementById('unlockBtn');
+const sitePasswordInput = document.getElementById('sitePassword');
+const gateError = document.getElementById('gateError');
 
 const CATEGORIES = [
   {code:"PR", name:"Pricing & Value", color:"#F2A93B"},
@@ -682,6 +775,13 @@ const CATEGORIES = [
 let activeFilter = 'all';
 let query = '';
 let submitted = [];      // team-submitted objections, loaded from Supabase
+let answers = [];
+const ACCESS_PASSWORD = 'solution';
+const GATE_UNLOCK_KEY = 'guvi-objection-gate-unlocked-at';
+const GATE_DURATION_MS = 60 * 60 * 1000; // 1 hour
+const LIKES_STORAGE_KEY = 'guvi-objection-likes';
+const ANSWERS_STORAGE_KEY = 'guvi-objection-answers';
+let answersChannel = null;
 
 function escapeHtml(str){
   const div = document.createElement('div');
@@ -691,6 +791,162 @@ function escapeHtml(str){
 
 function getAllData(){
   return DATA.concat(submitted);
+}
+
+function getEntryId(item, index){
+  return item.id || ((item.source === 'team' ? 'team' : 'built-in') + '-' + item.cat + '-' + (item.q || '').toLowerCase().replace(/[^a-z0-9]+/g, '-')) || 'item-' + index;
+}
+
+function getLikeKey(item, index){
+  return getEntryId(item, index);
+}
+
+function getLikesState(){
+  try{
+    const raw = localStorage.getItem(LIKES_STORAGE_KEY);
+    if(!raw) return { liked: [], counts: {} };
+    const parsed = JSON.parse(raw);
+    return {
+      liked: Array.isArray(parsed.liked) ? parsed.liked : [],
+      counts: parsed.counts && typeof parsed.counts === 'object' ? parsed.counts : {}
+    };
+  }catch{
+    return { liked: [], counts: {} };
+  }
+}
+
+function saveLikesState(state){
+  localStorage.setItem(LIKES_STORAGE_KEY, JSON.stringify(state));
+}
+
+function getLikeMeta(key){
+  const state = getLikesState();
+  return {
+    liked: state.liked.includes(key),
+    count: Number(state.counts[key] || 0)
+  };
+}
+
+function getStoredAnswers(){
+  try{
+    const raw = localStorage.getItem(ANSWERS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch{
+    return [];
+  }
+}
+
+function saveStoredAnswers(list){
+  localStorage.setItem(ANSWERS_STORAGE_KEY, JSON.stringify(list));
+}
+
+function getAnswersForEntry(entryId){
+  return answers.filter(entry => String(entry.objection_key) === String(entryId));
+}
+
+function toggleLike(key){
+  const state = getLikesState();
+  const alreadyLiked = state.liked.includes(key);
+  if(alreadyLiked){
+    state.liked = state.liked.filter(item => item !== key);
+    state.counts[key] = Math.max(0, Number(state.counts[key] || 1) - 1);
+  }else{
+    state.liked.push(key);
+    state.counts[key] = Number(state.counts[key] || 0) + 1;
+  }
+  saveLikesState(state);
+  render();
+}
+
+function unlockSite(){
+  const enteredPassword = sitePasswordInput.value.trim();
+  if(!enteredPassword){
+    gateError.textContent = 'Please enter the password to continue.';
+    sitePasswordInput.focus();
+    return;
+  }
+  if(enteredPassword !== ACCESS_PASSWORD){
+    gateError.textContent = 'That password is incorrect. Please try again.';
+    sitePasswordInput.focus();
+    return;
+  }
+
+  // Persist unlock time so the user stays unlocked for 1 hour across reloads.
+  localStorage.setItem(GATE_UNLOCK_KEY, String(Date.now()));
+
+  accessGate.classList.add('hidden');
+  document.body.classList.remove('gate-open');
+  gateError.textContent = '';
+}
+
+function shouldGateBeUnlocked(){
+  try{
+    const raw = localStorage.getItem(GATE_UNLOCK_KEY);
+    if(!raw) return false;
+    const unlockedAt = Number(raw);
+    if(!Number.isFinite(unlockedAt)) return false;
+    return (Date.now() - unlockedAt) < GATE_DURATION_MS;
+  }catch{
+    return false;
+  }
+}
+
+async function loadAnswers(){
+  if(!sbClient){
+    answers = getStoredAnswers();
+    render();
+    return;
+  }
+  try{
+    const { data, error } = await sbClient
+      .from('objection_answers')
+      .select('*')
+      .order('created_at', { ascending: true });
+    if(error) throw error;
+    answers = data || [];
+    saveStoredAnswers(answers);
+  }catch(e){
+    console.error('Answer load failed:', e);
+    answers = getStoredAnswers();
+  }
+  render();
+}
+
+async function saveAnswer(entryId, text){
+  const trimmed = text.trim();
+  if(!trimmed) return;
+  const payload = {
+    objection_key: String(entryId),
+    answer_text: trimmed,
+    submitted_by: 'BDA'
+  };
+  if(!sbClient){
+    const list = getStoredAnswers();
+    list.push({ id: Date.now(), ...payload, created_at: new Date().toISOString() });
+    saveStoredAnswers(list);
+    answers = list;
+    render();
+    return;
+  }
+  try{
+    const { error } = await sbClient.from('objection_answers').insert(payload);
+    if(error) throw error;
+    await loadAnswers();
+  }catch(e){
+    console.error('Answer save failed:', e);
+    const list = getStoredAnswers();
+    list.push({ id: Date.now(), ...payload, created_at: new Date().toISOString() });
+    saveStoredAnswers(list);
+    answers = list;
+    render();
+  }
+}
+
+function subscribeToAnswers(){
+  if(!sbClient || answersChannel) return;
+  answersChannel = sbClient.channel('guvi-objection-answers')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'objection_answers' }, ()=> loadAnswers())
+    .subscribe();
 }
 
 async function loadSubmissions(){
@@ -763,7 +1019,7 @@ function render(){
     groupTitle.innerHTML = '<span class="swatch" style="background:'+items[0].color+'"></span>' + items[0].catName;
     catalog.appendChild(groupTitle);
 
-    items.forEach(d=>{
+    items.forEach((d, index)=>{
       const card = document.createElement('div');
       card.className = 'card';
       card.tabIndex = 0;
@@ -781,6 +1037,14 @@ function render(){
       const rawAnswer = d.a && d.a.trim() ? d.a : '';
       const displayA = d.source === 'team' ? escapeHtml(rawAnswer) : rawAnswer;
       const answerText = displayA || '<em>No response noted yet — add one by editing this submission on the shared board.</em>';
+      const likeKey = getLikeKey(d, index);
+      const entryId = getEntryId(d, index);
+      const likeMeta = getLikeMeta(likeKey);
+      const cardAnswers = getAnswersForEntry(entryId);
+      const latestAnswer = cardAnswers.length ? cardAnswers[cardAnswers.length - 1] : null;
+      const latestAnswerPreview = latestAnswer
+        ? '<div class="answer-preview">Cmt: ' + escapeHtml(latestAnswer.answer_text) + '</div>'
+        : '';
 
       card.innerHTML = `
         <div class="card-inner">
@@ -789,6 +1053,19 @@ function render(){
             <div class="q-label">Objection</div>
             <div class="q-text">"${displayQ}"</div>
             ${teamBadge}
+            <div class="question-chip">Q: ${escapeHtml(d.q)}</div>
+            <div class="card-actions">
+              <button class="like-btn ${likeMeta.liked ? 'liked' : ''}" type="button" data-like-key="${likeKey}">
+                <span class="heart">${likeMeta.liked ? '💚' : '🤍'}</span>
+                <span>${likeMeta.liked ? 'Liked' : 'Like'}</span>
+                <span>${likeMeta.count}</span>
+              </button>
+              <div class="answer-box">
+                <input class="answer-input" data-answer-input="${entryId}" type="text" placeholder="Write your comment">
+                <button class="answer-btn" data-answer-btn="${entryId}" type="button">Comment</button>
+              </div>
+            </div>
+            ${latestAnswerPreview}
             <div class="flip-hint">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
               Tap to flip
@@ -802,9 +1079,51 @@ function render(){
           </div>
         </div>`;
       const toggle = ()=> card.classList.toggle('flipped');
-      card.addEventListener('click', toggle);
+      const likeButton = card.querySelector('.like-btn');
+      const answerButton = card.querySelector('.answer-btn');
+      const answerBox = card.querySelector('.answer-box');
+      const answerInput = card.querySelector('.answer-input');
+      likeButton?.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        toggleLike(likeButton.dataset.likeKey);
+      });
+      answerBox?.addEventListener('click', (e)=> e.stopPropagation());
+      answerInput?.addEventListener('click', (e)=> e.stopPropagation());
+      answerInput?.addEventListener('focus', (e)=> e.stopPropagation());
+      answerButton?.addEventListener('click', async (e)=>{
+        e.stopPropagation();
+        const input = card.querySelector('.answer-input[data-answer-input="' + entryId + '"]');
+        if(!input) return;
+        if(!input.value.trim()){
+          input.focus();
+          return;
+        }
+        await saveAnswer(entryId, input.value);
+        input.value = '';
+      });
+      answerInput?.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          answerButton?.click();
+        }
+      });
+      card.addEventListener('click', (e)=>{
+        if(e.target.closest('.answer-box') || e.target.closest('.like-btn')) return;
+        toggle();
+      });
       card.addEventListener('keydown', (e)=>{
+        if(e.target.closest('.answer-box')) return;
         if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+      });
+      card.addEventListener('keydown', (e)=>{
+        // Prevent flipping/toggling while typing in inputs/textarea/select elements.
+        if(e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')){
+          return;
+        }
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          toggle();
+        }
       });
       catalog.appendChild(card);
     });
@@ -824,6 +1143,20 @@ searchInput.addEventListener('input', (e)=>{
   query = e.target.value.trim().toLowerCase();
   render();
 });
+
+unlockBtn.addEventListener('click', unlockSite);
+sitePasswordInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') unlockSite();
+});
+
+// If user unlocked recently, keep them on the main page after reload.
+if(shouldGateBeUnlocked()){
+  accessGate.classList.add('hidden');
+  document.body.classList.remove('gate-open');
+} else {
+  document.body.classList.add('gate-open');
+}
+
 
 /* ---------- Add-objection modal ---------- */
 const modalOverlay = document.getElementById('modalOverlay');
@@ -883,8 +1216,7 @@ submitBtn.addEventListener('click', async ()=>{
     fPassword.focus();
     return;
   }
-  const expectedPassword = 'solution';
-  if(password !== expectedPassword){
+  if(password !== ACCESS_PASSWORD){
     modalError.textContent = 'Incorrect password. Please enter the correct solution password.';
     fPassword.focus();
     return;
@@ -926,6 +1258,8 @@ submitBtn.addEventListener('click', async ()=>{
 
 render();
 loadSubmissions();
+loadAnswers();
+subscribeToAnswers();
 </script>
 
 </body>

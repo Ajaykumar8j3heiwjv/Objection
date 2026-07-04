@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Analysis — GUVI Sales Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/shared.css">
+<style>
+  .hub-hero{background:linear-gradient(160deg, var(--ink) 0%, var(--ink-2) 100%); color:#fff; padding:56px 28px 44px; position:relative; overflow:hidden;}
+  .hub-hero::before{content:""; position:absolute; right:-100px; top:-100px; width:340px; height:340px; border:70px solid rgba(255,255,255,0.05); border-radius:50%;}
+  .hub-hero-inner{max-width:1080px; margin:0 auto; position:relative;}
+  .hub-hero h1{font-family:var(--display); font-weight:600; font-size:clamp(28px,4.5vw,44px); line-height:1.15; max-width:20ch;}
+  .hub-hero p{margin-top:14px; max-width:56ch; color:#C9D6CD; font-size:15px;}
+  .hub-grid{max-width:1080px; margin:0 auto; padding:40px 28px 70px; display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:20px;}
+  .hub-card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px; display:flex; flex-direction:column; gap:10px; position:relative; overflow:hidden; transition:transform .15s, box-shadow .15s;}
+  .hub-card::before{content:""; position:absolute; left:0; top:0; width:4px; height:100%; background:var(--accent);}
+  .hub-card:hover{transform:translateY(-3px); box-shadow:0 14px 30px rgba(18,36,27,0.10);}
+  .hub-card-top{display:flex; align-items:center; gap:8px;}
+  .hub-dot{width:8px; height:8px; border-radius:50%; background:var(--accent);}
+  .hub-cat{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-mute);}
+  .hub-card h3{font-family:var(--display); font-size:17px; font-weight:600; color:var(--text-dark);}
+  .hub-card p{font-size:13px; color:var(--text-mute);}
+  .hub-tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;}
+  .hub-tag{font-family:var(--mono); font-size:10px; background:var(--paper-2); border:1px solid var(--line); border-radius:20px; padding:3px 9px; color:var(--text-mute);}
+  .hub-cta{margin-top:auto; padding-top:10px; font-family:var(--mono); font-size:12px; color:var(--brand-dark); font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="pa-topbar">
+  <a class="pa-back" href="index.html">← Objection Playbook</a>
+  <div class="pa-brand">
+    <span class="logo-slot">
+      <img src="logo.jpg" alt="GUVI logo" style="width:32px;height:32px;object-fit:contain;" />
+    </span>
+    <b>HCL GUVI</b> · Product Analysis
+  </div>
+</div>
+
+<section class="hub-hero">
+  <div class="hub-hero-inner">
+    <span class="pa-eyebrow" style="display:block; margin-bottom:12px;">Sales Reference · Internal Use Only</span>
+    <h1>Product Analysis — every course, one page each.</h1>
+    <p>Curriculum, batch options, pricing, projects and what makes each program worth pitching. Open a product below for the full breakdown.</p>
+  </div>
+</section>
+
+<div class="hub-grid">
+    <a class="hub-card" href="courses/full-stack-engineering.html" style="--accent:#2B7DE9">
+      <div class="hub-card-top">
+        <span class="hub-dot"></span>
+        <span class="hub-cat">GUVI Engineering</span>
+      </div>
+      <h3>Full Stack Engineering Course — 2026</h3>
+      <p>Java-first fullstack/backend engineering with 2 elective tracks, cloud DevOps &amp; GenAI.</p>
+      <div class="hub-tags"><span class="hub-tag">Java + DSA</span><span class="hub-tag">Fullstack / Backend</span><span class="hub-tag">GenAI Integrated</span><span class="hub-tag">7 Projects</span></div>
+      <div class="hub-cta">View product analysis →</div>
+    </a>
+    <a class="hub-card" href="courses/ai-uiux-design-fellowship.html" style="--accent:#7C5CBF">
+      <div class="hub-card-top">
+        <span class="hub-dot"></span>
+        <span class="hub-cat">GUVI Design</span>
+      </div>
+      <h3>AI-Powered UI/UX &amp; Product Design Fellowship</h3>
+      <p>AI-first UI/UX &amp; product design fellowship ending in a live deployed MVP.</p>
+      <div class="hub-tags"><span class="hub-tag">AI-Powered</span><span class="hub-tag">Product Design</span><span class="hub-tag">Live MVP</span><span class="hub-tag">8 Projects</span></div>
+      <div class="hub-cta">View product analysis →</div>
+    </a>
+    <a class="hub-card" href="courses/devops-engineering.html" style="--accent:#3E8FB0">
+      <div class="hub-card-top">
+        <span class="hub-dot"></span>
+        <span class="hub-cat">GUVI DevOps</span>
+      </div>
+      <h3>DevOps Engineering Program</h3>
+      <p>Zero-to-production DevOps: Linux, Docker, Kubernetes, GitOps &amp; DevSecOps.</p>
+      <div class="hub-tags"><span class="hub-tag">Cloud Native</span><span class="hub-tag">Job-Ready</span><span class="hub-tag">20+ Tools</span></div>
+      <div class="hub-cta">View product analysis →</div>
+    </a>
+    <a class="hub-card" href="courses/ai-machine-learning.html" style="--accent:#D9534F">
+      <div class="hub-card-top">
+        <span class="hub-dot"></span>
+        <span class="hub-cat">GUVI AI/ML</span>
+      </div>
+      <h3>Artificial Intelligence with Machine Learning</h3>
+      <p>ML to Agentic AI in 22 modules — GenAI-ready, bilingual, MLOps included.</p>
+      <div class="hub-tags"><span class="hub-tag">GenAI Ready</span><span class="hub-tag">Job-Ready</span><span class="hub-tag">22 Modules</span></div>
+      <div class="hub-cta">View product analysis →</div>
+    </a>
+    <a class="hub-card" href="courses/data-science-genai.html" style="--accent:#6E56CF">
+      <div class="hub-card-top">
+        <span class="hub-dot"></span>
+        <span class="hub-cat">GUVI Data Science</span>
+      </div>
+      <h3>Advanced Data Science with Generative AI</h3>
+      <p>Data science through to production GenAI apps — 3 certificates, 9 projects.</p>
+      <div class="hub-tags"><span class="hub-tag">Generative AI</span><span class="hub-tag">Job-Ready</span><span class="hub-tag">30+ Tools</span></div>
+      <div class="hub-cta">View product analysis →</div>
+    </a>
+    <a class="hub-card" href="courses/ai-business-analytics.html" style="--accent:#C97B3E">
+      <div class="hub-card-top">
+        <span class="hub-dot"></span>
+        <span class="hub-cat">GUVI BA Program</span>
+      </div>
+      <h3>AI Powered Business Analytics</h3>
+      <p>Excel to Power BI/Tableau to AI-automated analytics — 24 modules, 7 projects.</p>
+      <div class="hub-tags"><span class="hub-tag">AI-First</span><span class="hub-tag">Job-Ready</span><span class="hub-tag">24 Modules</span></div>
+      <div class="hub-cta">View product analysis →</div>
+    </a></div>
+
+<footer class="pa-footer">HCL GUVI · Sales Team Internal Reference · Product Analysis</footer>
+
+</body>
+</html>
