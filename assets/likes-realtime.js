@@ -45,7 +45,11 @@
   // - elements with [data-like-key]
   // - each like button should have [data-like-count] span OR contain a span.count
 
-  const defaultHeart = { liked: '💚', unliked: '🤍' };
+const defaultHeart = { liked: '❤️', unliked: '🤍' };
+
+  // Some pages may render an inline heart span with data-like-heart.
+  // If the span exists, we will update its text. Otherwise we do nothing.
+
 
   function getButtons(){
     return Array.from(document.querySelectorAll('[data-like-key]'));

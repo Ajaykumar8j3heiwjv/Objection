@@ -178,7 +178,29 @@ img{max-width:100%;}
 .pa-project-card h3{font-family:var(--display); font-size:14px; font-weight:600;}
 .pa-project-card p{font-size:12.5px; color:var(--text-mute); margin-top:6px;}
 
+/* Ensure long text never overflows outside cards */
+.pa-project-card,
+.pa-batch-card,
+.pa-persona-card,
+.pa-diff-card,
+.pa-cert-card{
+  min-width:0;
+}
+.pa-project-card *{
+  word-break:break-word;
+  overflow-wrap:anywhere;
+}
+
+.pa-project-card h3,
+.pa-project-card p,
+.pa-project-tag,
+.pa-chip-row,
+.pa-tools-wrap{
+  max-width:100%;
+}
+
 .pa-diff-card{
+
   background:#fff; border-left:3px solid var(--brand); border-radius:0 var(--radius) var(--radius) 0;
   padding:16px 18px;
 }
@@ -205,17 +227,25 @@ img{max-width:100%;}
 .pa-pricing{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:18px;}
 .pa-price-card{
   background:var(--ink); color:#fff; border-radius:var(--radius); padding:24px;
+  min-width:0;
+  overflow-wrap:anywhere;
+  word-break:break-word;
 }
+
 .pa-price-card.alt{background:#fff; color:var(--text-dark); border:1px solid var(--line);}
 .pa-price-card .tag{font-family:var(--mono); font-size:11px; letter-spacing:0.05em; text-transform:uppercase; opacity:0.75;}
 .pa-price-card .amt{font-family:var(--display); font-size:30px; font-weight:700; margin-top:8px; color:var(--brand);}
 .pa-price-card.alt .amt{color:var(--brand-dark);}
-.pa-price-card .desc{font-size:12.5px; margin-top:8px; opacity:0.85;}
+.pa-price-card .desc{font-size:12.5px; margin-top:8px; opacity:0.85; max-width:100%; overflow-wrap:anywhere; word-break:break-word;}
+
 .pa-price-card.alt .desc{color:var(--text-mute); opacity:1;}
 .pa-price-card .plan{
-  margin-top:14px; display:inline-block; font-family:var(--mono); font-size:11px;
+  margin-top:14px; display:inline-block; max-width:100%;
+  font-family:var(--mono); font-size:11px;
   border:1px solid rgba(255,255,255,0.3); padding:5px 12px; border-radius:20px;
+  overflow-wrap:anywhere; word-break:break-word;
 }
+
 .pa-price-card.alt .plan{border-color:var(--line); color:var(--brand-dark);}
 
 /* ---------- Footer ---------- */
