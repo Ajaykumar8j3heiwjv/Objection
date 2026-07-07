@@ -9,10 +9,10 @@
 
 ## Step 2: Add shared JS module
 - ✅ Created `assets/likes-realtime.js`
-- Functions:
-  - subscribe to realtime changes for likes
-  - render/update like buttons based on `data-like-key`
-  - handle click toggle
+- Remaining bullets (Step 2)
+  - Subscribe to realtime changes for likes
+  - Render/update like buttons based on `data-like-key`
+  - Handle click toggle
 
 
 ## Step 3: Update `index.html`
