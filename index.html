@@ -325,6 +325,15 @@
     font-size:13.5px; line-height:1.55; color:#D6D9E5;
   }
   .card-back .a-text strong{color:#fff; font-weight:600;}
+  .card-back .a-text ul.a-bullets{
+    list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px;
+  }
+  .card-back .a-text ul.a-bullets li{
+    position:relative; padding-left:16px;
+  }
+  .card-back .a-text ul.a-bullets li::before{
+    content:"•"; position:absolute; left:0; top:0; color:var(--amber); font-weight:700;
+  }
   .card-back .ask-line{
     margin-top:12px; padding-top:10px; border-top:1px solid #2B3358;
     font-size:12.5px; font-style:italic; color:var(--amber);
@@ -479,6 +488,9 @@
   #productAnalysisBtn{
     background:var(--ink); color:#fff;
   }
+  #voiceAnalysisBtn{
+    background:var(--teal); color:#fff;
+  }
 
   .modal-overlay{
     display:none;
@@ -615,6 +627,7 @@
   </div>
   <div class="count-pill" id="countPill">12 cards</div>
   <a class="add-btn" id="productAnalysisBtn" href="products.html" style="text-decoration:none; display:inline-flex; align-items:center;">📊 Product Analysis</a>
+  <a class="add-btn" id="voiceAnalysisBtn" href="voice-analysis.html" style="text-decoration:none; display:inline-flex; align-items:center;">🎙️ Voice Analysis</a>
   <button class="add-btn" id="openModalBtn" type="button">+ Add objection</button>
 </div>
 
@@ -1133,6 +1146,42 @@ async function saveSubmission(entry){
   if(error) throw error;
 }
 
+function formatAsBullets(raw){
+  if(!raw) return raw;
+  let text = String(raw).replace(/\r\n/g, '\n');
+
+  // Pull out any existing <ul>...</ul> blocks and remember their <li> items
+  const listBlocks = [];
+  text = text.replace(/<ul>([\s\S]*?)<\/ul>/gi, (match, inner) => {
+    const items = [...inner.matchAll(/<li>([\s\S]*?)<\/li>/gi)].map(m => m[1].trim());
+    listBlocks.push(items);
+    return `\n@@LIST${listBlocks.length - 1}@@\n`;
+  });
+
+  // Collapse blank lines, split into logical lines
+  text = text.replace(/\n{2,}/g, '\n').trim();
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+  const bullets = [];
+  lines.forEach(line => {
+    const listMatch = line.match(/^@@LIST(\d+)@@$/);
+    if (listMatch) {
+      bullets.push(...listBlocks[Number(listMatch[1])]);
+      return;
+    }
+    // Split prose lines into individual sentences, each becomes its own bullet
+    const sentences = line.split(/(?<=[.!?])\s+(?=[A-Z"'<])/).map(s => s.trim()).filter(Boolean);
+    if (sentences.length) {
+      bullets.push(...sentences);
+    } else {
+      bullets.push(line);
+    }
+  });
+
+  if (!bullets.length) return raw;
+  return '<ul class="a-bullets">' + bullets.map(b => `<li>${b}</li>`).join('') + '</ul>';
+}
+
 function render(){
   const all = getAllData();
   const filtered = all.filter(d=>{
@@ -1178,7 +1227,7 @@ function render(){
       const displayQ = d.source === 'team' ? escapeHtml(d.q) : d.q;
       const rawAnswer = d.a && d.a.trim() ? d.a : '';
       const displayA = d.source === 'team' ? escapeHtml(rawAnswer) : rawAnswer;
-      const answerText = displayA || '<em>No response noted yet — add one by editing this submission on the shared board.</em>';
+      const answerText = displayA ? formatAsBullets(displayA) : '<em>No response noted yet — add one by editing this submission on the shared board.</em>';
       const likeKey = getLikeKey(d, index);
       const entryId = getEntryId(d, index);
       const likeMeta = getLikeMeta(likeKey);
@@ -1413,4 +1462,3 @@ subscribeToAnswers();
 
 </body>
 </html>
-

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice Analysis — GUVI Objection Playbook</title>
+<link rel="icon" href="logo.jpg" type="image/jpeg">
+<link rel="shortcut icon" href="logo.jpg" type="image/jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12241B;
+    --ink-2:#1C3627;
+    --paper:#F1FEF5;
+    --paper-2:#F8FFFA;
+    --amber:#0FB94E;
+    --teal:#0E8C43;
+    --red:#C0392B;
+    --text-dark:#12180F;
+    --text-mute:#4B5C51;
+    --line:#CFE6D6;
+    --card-bg:#FFFFFF;
+    --display: 'Poppins', sans-serif;
+    --body: 'Poppins', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--text-dark);
+    font-family:var(--body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+
+  /* ---------- Top bar (mirrors main site) ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:var(--paper-2);
+    padding:12px 28px;
+    display:flex; align-items:center; gap:20px; flex-wrap:wrap;
+    border-bottom:2px solid var(--amber);
+  }
+  .brand{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.12em;
+    text-transform:uppercase; display:flex; align-items:center; gap:10px;
+    white-space:nowrap; color:var(--text-mute);
+  }
+  .logo-slot{
+    width:44px; height:44px; display:flex; align-items:center; justify-content:center;
+    background:#fff; border-radius:999px; box-shadow:0 0 0 1px rgba(0,0,0,.08); overflow:hidden;
+  }
+  .logo-slot img{height:32px; width:32px; display:block; object-fit:contain;}
+  .brand .divider{color:var(--line); font-size:14px;}
+  .brand b{font-family:var(--display); font-size:13px; letter-spacing:0.04em; color:var(--text-dark); font-weight:600;}
+  .back-link{
+    margin-left:auto; font-family:var(--mono); font-size:12px; color:var(--text-mute);
+    text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+    padding:9px 14px; border:1px solid var(--line); border-radius:20px; transition:all .15s;
+  }
+  .back-link:hover{border-color:var(--amber); color:var(--teal);}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    background:var(--ink); color:#fff; padding:48px 28px 36px; position:relative; overflow:hidden;
+  }
+  .hero::before{
+    content:""; position:absolute; right:-80px; top:-80px; width:280px; height:280px;
+    border:60px solid var(--ink-2); border-radius:50%; opacity:0.5;
+  }
+  .hero-inner{max-width:900px; position:relative;}
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.15em; text-transform:uppercase;
+    color:var(--amber); margin-bottom:12px; display:block;
+  }
+  .hero h1{
+    font-family:var(--display); font-weight:600; font-size:clamp(28px, 4vw, 42px);
+    line-height:1.12; letter-spacing:-0.01em; max-width:20ch;
+  }
+  .hero p{margin-top:14px; max-width:60ch; color:#C4D4C9; font-size:15px;}
+
+  /* ---------- Main layout ---------- */
+  .wrap{max-width:1080px; margin:0 auto; padding:32px 28px 80px;}
+  .grid{display:grid; grid-template-columns:1fr; gap:24px;}
+  @media(min-width:900px){ .grid{grid-template-columns:380px 1fr;} }
+
+  .panel{
+    background:var(--card-bg); border:1px solid var(--line); border-radius:10px; padding:22px;
+  }
+  .panel h2{
+    font-family:var(--display); font-size:16px; font-weight:600; margin-bottom:4px;
+  }
+  .panel .sub{font-size:12.5px; color:var(--text-mute); margin-bottom:18px;}
+
+  /* language selector */
+  .lang-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:18px;}
+  .lang-chip{
+    font-family:var(--mono); font-size:12.5px; text-align:center; padding:10px 8px;
+    border:1px solid var(--line); border-radius:8px; cursor:pointer; background:#fff;
+    color:var(--text-dark); transition:all .15s;
+  }
+  .lang-chip.active{background:var(--amber); border-color:var(--amber); color:#0B2013; font-weight:700;}
+  .lang-chip:hover:not(.active){border-color:var(--amber); color:var(--teal);}
+
+  /* record controls */
+  .record-zone{
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    padding:24px 12px; border:1px dashed var(--line); border-radius:10px; margin-bottom:16px;
+  }
+  .mic-btn{
+    width:76px; height:76px; border-radius:50%; border:none; cursor:pointer;
+    background:linear-gradient(135deg, var(--amber), var(--teal)); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:28px;
+    box-shadow:0 8px 22px rgba(15,185,78,0.35); transition:transform .15s;
+    position:relative;
+  }
+  .mic-btn:hover{transform:scale(1.05);}
+  .mic-btn.recording{background:linear-gradient(135deg, var(--red), #8e2418); animation:pulse 1.5s infinite;}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(192,57,43,0.45);}
+    70%{box-shadow:0 0 0 16px rgba(192,57,43,0);}
+    100%{box-shadow:0 0 0 0 rgba(192,57,43,0);}
+  }
+  .rec-status{font-family:var(--mono); font-size:12px; color:var(--text-mute); text-align:center;}
+  .rec-timer{font-family:var(--mono); font-size:20px; font-weight:600; color:var(--text-dark); min-height:26px;}
+
+  .divider-or{
+    display:flex; align-items:center; gap:10px; color:var(--text-mute);
+    font-family:var(--mono); font-size:11px; text-transform:uppercase; margin:6px 0 14px;
+  }
+  .divider-or::before,.divider-or::after{content:""; flex:1; height:1px; background:var(--line);}
+
+  .upload-box{
+    border:1px solid var(--line); border-radius:8px; padding:12px; text-align:center;
+    font-size:12.5px; color:var(--text-mute); cursor:pointer; background:#f8fffa;
+  }
+  .upload-box:hover{border-color:var(--amber);}
+  .upload-box input{display:none;}
+
+  audio{width:100%; margin-top:14px;}
+
+  .analyze-btn{
+    width:100%; margin-top:18px; border:none; border-radius:10px; padding:14px 16px;
+    font-size:14px; font-weight:700; color:#fff;
+    background:linear-gradient(90deg, var(--amber) 0%, var(--teal) 100%);
+    cursor:pointer; font-family:var(--body);
+  }
+  .analyze-btn:disabled{opacity:0.5; cursor:not-allowed;}
+  .analyze-btn:hover:not(:disabled){filter:brightness(0.96);}
+
+  .status-line{
+    margin-top:12px; font-family:var(--mono); font-size:12px; color:var(--teal); min-height:16px;
+  }
+  .status-line.error{color:var(--red);}
+
+  /* right panel: results */
+  .results-empty{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:340px; color:var(--text-mute); text-align:center; gap:10px; padding:20px;
+  }
+  .results-empty .big-icon{font-size:36px; opacity:0.5;}
+  .results-empty p{max-width:36ch; font-size:13.5px;}
+
+  .score-row{display:flex; align-items:center; gap:18px; margin-bottom:20px; flex-wrap:wrap;}
+  .score-dial{
+    width:88px; height:88px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    flex-direction:column; background:var(--ink); color:#fff; flex-shrink:0;
+  }
+  .score-dial .n{font-family:var(--display); font-size:26px; font-weight:700; color:var(--amber); line-height:1;}
+  .score-dial .lbl{font-family:var(--mono); font-size:8px; letter-spacing:0.06em; text-transform:uppercase; color:#9fb6a6; margin-top:2px;}
+  .score-meta{flex:1; min-width:200px;}
+  .score-meta h3{font-family:var(--display); font-size:17px; margin-bottom:4px;}
+  .score-meta p{font-size:13px; color:var(--text-mute);}
+
+  .section-block{margin-top:22px;}
+  .section-block h4{
+    font-family:var(--mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--teal); margin-bottom:10px; display:flex; align-items:center; gap:6px;
+  }
+  .bullet-list{list-style:none; display:flex; flex-direction:column; gap:8px;}
+  .bullet-list li{
+    position:relative; padding-left:18px; font-size:13.5px; line-height:1.5; color:var(--text-dark);
+  }
+  .bullet-list li::before{content:"•"; position:absolute; left:0; color:var(--amber); font-weight:700;}
+  .improve-list li::before{content:"↗"; color:var(--red);}
+
+  .transcript-box{
+    background:#f8fffa; border:1px solid var(--line); border-radius:8px; padding:14px;
+    font-size:13px; line-height:1.6; color:var(--text-dark); max-height:260px; overflow-y:auto;
+    white-space:pre-wrap;
+  }
+
+  .footer-note{
+    margin-top:40px; font-size:12px; color:var(--text-mute); text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="logo-slot"><img src="logo.jpg" alt="GUVI logo"></span>
+    <span class="divider">|</span>
+    <b>Voice Analysis</b>
+  </div>
+  <a class="back-link" href="index.html">&larr; Back to Playbook</a>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="eyebrow">Sales Enablement · Pitch Coaching</span>
+    <h1>Record your pitch. Get coached on it.</h1>
+    <p>Record or upload a call in Tamil, English, Hindi or Telugu. We transcribe it and score how well you handled objections, tone, and pacing — with specific suggestions to improve.</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="grid">
+
+    <!-- LEFT: input panel -->
+    <div class="panel">
+      <h2>1. Choose language</h2>
+      <p class="sub">Pick the language you pitched in. Mixed English is fine.</p>
+      <div class="lang-grid" id="langGrid">
+        <div class="lang-chip active" data-lang="auto">Auto-detect</div>
+        <div class="lang-chip" data-lang="en">English</div>
+        <div class="lang-chip" data-lang="ta">Tamil</div>
+        <div class="lang-chip" data-lang="hi">Hindi</div>
+        <div class="lang-chip" data-lang="te">Telugu</div>
+      </div>
+
+      <h2>2. Record or upload</h2>
+      <p class="sub">Speak naturally, like a real pitch.</p>
+
+      <div class="record-zone">
+        <button class="mic-btn" id="micBtn" type="button" aria-label="Start recording">🎙️</button>
+        <div class="rec-timer" id="recTimer">00:00</div>
+        <div class="rec-status" id="recStatus">Tap the mic to start recording</div>
+      </div>
+
+      <div class="divider-or">or</div>
+
+      <label class="upload-box" id="uploadBox">
+        📁 Click to upload an audio file (.mp3, .wav, .m4a)
+        <input type="file" id="fileInput" accept="audio/*">
+      </label>
+
+      <audio id="audioPreview" controls style="display:none;"></audio>
+
+      <button class="analyze-btn" id="analyzeBtn" disabled>Analyze Pitch</button>
+      <div class="status-line" id="statusLine"></div>
+    </div>
+
+    <!-- RIGHT: results panel -->
+    <div class="panel" id="resultsPanel">
+      <div class="results-empty" id="resultsEmpty">
+        <div class="big-icon">🎧</div>
+        <p>Your transcript and coaching feedback will show up here once you record or upload a pitch and hit Analyze.</p>
+      </div>
+
+      <div id="resultsContent" style="display:none;">
+        <div class="score-row">
+          <div class="score-dial"><span class="n" id="scoreNum">--</span><span class="lbl">/ 100</span></div>
+          <div class="score-meta">
+            <h3 id="scoreHeadline">Pitch Score</h3>
+            <p id="scoreSummary"></p>
+          </div>
+        </div>
+
+        <div class="section-block">
+          <h4>✅ What worked</h4>
+          <ul class="bullet-list" id="strengthsList"></ul>
+        </div>
+
+        <div class="section-block">
+          <h4>↗ Where to improve</h4>
+          <ul class="bullet-list improve-list" id="improveList"></ul>
+        </div>
+
+        <div class="section-block">
+          <h4>💬 Objection handling notes</h4>
+          <ul class="bullet-list" id="objectionList"></ul>
+        </div>
+
+        <div class="section-block">
+          <h4>📝 Transcript</h4>
+          <div class="transcript-box" id="transcriptBox"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-note">Recordings are sent to Google's Gemini API for transcription and analysis only — they are not stored after your session.</div>
+</div>
+
+<script>
+const langGrid = document.getElementById('langGrid');
+const micBtn = document.getElementById('micBtn');
+const recTimer = document.getElementById('recTimer');
+const recStatus = document.getElementById('recStatus');
+const uploadBox = document.getElementById('uploadBox');
+const fileInput = document.getElementById('fileInput');
+const audioPreview = document.getElementById('audioPreview');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const statusLine = document.getElementById('statusLine');
+
+const resultsEmpty = document.getElementById('resultsEmpty');
+const resultsContent = document.getElementById('resultsContent');
+const scoreNum = document.getElementById('scoreNum');
+const scoreHeadline = document.getElementById('scoreHeadline');
+const scoreSummary = document.getElementById('scoreSummary');
+const strengthsList = document.getElementById('strengthsList');
+const improveList = document.getElementById('improveList');
+const objectionList = document.getElementById('objectionList');
+const transcriptBox = document.getElementById('transcriptBox');
+
+let selectedLang = 'auto';
+let mediaRecorder = null;
+let audioChunks = [];
+let recordedBlob = null;
+let recordingTimerInterval = null;
+let recordingSeconds = 0;
+let isRecording = false;
+
+// ---------- Language selection ----------
+langGrid.querySelectorAll('.lang-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    langGrid.querySelectorAll('.lang-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    selectedLang = chip.dataset.lang;
+  });
+});
+
+// ---------- Recording ----------
+function formatTime(sec){
+  const m = String(Math.floor(sec / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+async function startRecording(){
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = (e) => { if(e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      recordedBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+      audioPreview.src = URL.createObjectURL(recordedBlob);
+      audioPreview.style.display = 'block';
+      analyzeBtn.disabled = false;
+      stream.getTracks().forEach(t => t.stop());
+    };
+    mediaRecorder.start();
+    isRecording = true;
+    micBtn.classList.add('recording');
+    micBtn.textContent = '⏹️';
+    recStatus.textContent = 'Recording… tap to stop';
+    recordingSeconds = 0;
+    recTimer.textContent = formatTime(0);
+    recordingTimerInterval = setInterval(() => {
+      recordingSeconds++;
+      recTimer.textContent = formatTime(recordingSeconds);
+    }, 1000);
+  }catch(err){
+    console.error(err);
+    statusLine.textContent = 'Could not access microphone. Check browser permissions.';
+    statusLine.classList.add('error');
+  }
+}
+
+function stopRecording(){
+  if(mediaRecorder && isRecording){
+    mediaRecorder.stop();
+    isRecording = false;
+    micBtn.classList.remove('recording');
+    micBtn.textContent = '🎙️';
+    recStatus.textContent = 'Recording captured — ready to analyze';
+    clearInterval(recordingTimerInterval);
+  }
+}
+
+micBtn.addEventListener('click', () => {
+  if(!isRecording) startRecording(); else stopRecording();
+});
+
+// ---------- File upload ----------
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  if(!file) return;
+  recordedBlob = file;
+  audioPreview.src = URL.createObjectURL(file);
+  audioPreview.style.display = 'block';
+  analyzeBtn.disabled = false;
+  recStatus.textContent = `Loaded: ${file.name}`;
+});
+
+// ---------- Analyze ----------
+function blobToBase64(blob){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function setStatus(msg, isError){
+  statusLine.textContent = msg;
+  statusLine.classList.toggle('error', !!isError);
+}
+
+function renderResults(data, transcript){
+  resultsEmpty.style.display = 'none';
+  resultsContent.style.display = 'block';
+
+  scoreNum.textContent = data.overall_score ?? '--';
+  scoreHeadline.textContent = data.headline || 'Pitch Score';
+  scoreSummary.textContent = data.summary || '';
+
+  strengthsList.innerHTML = (data.strengths || []).map(s => `<li>${s}</li>`).join('') || '<li>No strengths returned.</li>';
+  improveList.innerHTML = (data.improvements || []).map(s => `<li>${s}</li>`).join('') || '<li>No suggestions returned.</li>';
+  objectionList.innerHTML = (data.objection_notes || []).map(s => `<li>${s}</li>`).join('') || '<li>No objection-handling moments detected.</li>';
+
+  transcriptBox.textContent = transcript || '(No transcript returned)';
+  resultsContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+analyzeBtn.addEventListener('click', async () => {
+  if(!recordedBlob){
+    setStatus('Record or upload audio first.', true);
+    return;
+  }
+
+  analyzeBtn.disabled = true;
+  setStatus('Uploading and analyzing… this can take 10-20 seconds.');
+
+  try{
+    const audioBase64 = await blobToBase64(recordedBlob);
+    const mimeType = recordedBlob.type || 'audio/webm';
+
+    // Single call: Gemini transcribes AND coaches the pitch in one shot
+    const analyzeRes = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ audioBase64, mimeType, language: selectedLang })
+    });
+    if(!analyzeRes.ok){
+      const errBody = await analyzeRes.json().catch(() => ({}));
+      throw new Error(errBody.error || `Analysis failed (${analyzeRes.status})`);
+    }
+    const analysis = await analyzeRes.json();
+
+    if(!analysis.transcript || !analysis.transcript.trim()){
+      throw new Error('No speech detected in the recording.');
+    }
+
+    renderResults(analysis, analysis.transcript);
+    setStatus('Done.');
+  }catch(err){
+    console.error(err);
+    setStatus(err.message || 'Something went wrong.', true);
+  }finally{
+    analyzeBtn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>
