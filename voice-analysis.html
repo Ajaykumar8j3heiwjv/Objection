@@ -134,10 +134,16 @@
   .divider-or::before,.divider-or::after{content:""; flex:1; height:1px; background:var(--line);}
 
   .upload-box{
-    border:1px solid var(--line); border-radius:8px; padding:12px; text-align:center;
-    font-size:12.5px; color:var(--text-mute); cursor:pointer; background:#f8fffa;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    border:2px solid var(--teal); border-radius:10px; padding:14px 16px; text-align:center;
+    font-size:13.5px; font-weight:600; color:var(--teal); cursor:pointer; background:#fff;
+    transition:all .15s;
   }
-  .upload-box:hover{border-color:var(--amber);}
+  .upload-box .upload-icon{font-size:18px;}
+  .upload-box .upload-hint{
+    display:block; font-weight:400; font-size:11px; color:var(--text-mute); margin-top:3px;
+  }
+  .upload-box:hover{background:#eafff1; border-color:var(--amber);}
   .upload-box input{display:none;}
 
   audio{width:100%; margin-top:14px;}
@@ -193,6 +199,18 @@
     white-space:pre-wrap;
   }
 
+  .transcript-header{
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px;
+  }
+  .translate-btn{
+    font-family:var(--mono); font-size:11px; font-weight:600; color:var(--teal);
+    background:#eafff1; border:1px solid #b9e8c7; border-radius:16px; padding:6px 12px;
+    cursor:pointer; white-space:nowrap; transition:all .15s;
+  }
+  .translate-btn:hover:not(:disabled){background:#d7f7e2;}
+  .translate-btn:disabled{opacity:0.6; cursor:wait;}
+  .translate-btn.showing-original{color:var(--text-mute); background:#fff; border-color:var(--line);}
+
   .footer-note{
     margin-top:40px; font-size:12px; color:var(--text-mute); text-align:center;
   }
@@ -213,6 +231,78 @@
   }
   .loader-state .loader-sub{
     font-size:12px; color:var(--text-mute); max-width:32ch;
+  }
+
+  /* ---------- Status banner (upgraded from plain text) ---------- */
+  .status-line{
+    margin-top:12px; display:none; align-items:flex-start; gap:8px;
+    font-family:var(--mono); font-size:12px; line-height:1.5;
+    padding:10px 12px; border-radius:8px;
+    background:#eafff1; border:1px solid #b9e8c7; color:var(--teal);
+  }
+  .status-line.visible{display:flex;}
+  .status-line.error{background:#fdecea; border-color:#f2b8b0; color:var(--red);}
+
+  .file-info-card{
+    display:none; align-items:center; gap:10px; margin-top:14px;
+    padding:12px 14px; border-radius:10px; background:#f0fbf3; border:1px solid var(--line);
+  }
+  .file-info-card.visible{display:flex;}
+  .file-info-card .icon{font-size:20px; flex-shrink:0;}
+  .file-info-card .name{font-family:var(--display); font-weight:600; font-size:13.5px; color:var(--text-dark); word-break:break-word;}
+  .file-info-card .meta{font-family:var(--mono); font-size:11.5px; color:var(--text-mute); margin-top:2px;}
+
+  /* ---------- Reset / new analysis ---------- */
+  .results-header{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:4px;}
+  .reset-link{
+    font-family:var(--mono); font-size:11.5px; color:var(--text-mute); cursor:pointer;
+    border:1px solid var(--line); border-radius:16px; padding:6px 12px; background:#fff;
+    white-space:nowrap; transition:all .15s;
+  }
+  .reset-link:hover{border-color:var(--amber); color:var(--teal);}
+
+  /* ---------- Drag & drop ---------- */
+  .upload-box.dragover{border-color:var(--amber); background:#eafff1; color:var(--teal);}
+
+  /* ---------- Disabled state for whichever input isn't active ---------- */
+  .record-zone.disabled-zone, .upload-box.disabled-zone{
+    opacity:0.45; pointer-events:none;
+  }
+
+  /* ==================================================================
+     RESPONSIVE — tablet & mobile
+  ================================================================== */
+  @media(max-width:640px){
+    .topbar{ padding:10px 16px; gap:10px; }
+    .brand b{ font-size:12px; }
+    .logo-slot{ width:36px; height:36px; }
+    .logo-slot img{ width:26px; height:26px; }
+    .back-link{ padding:7px 11px; font-size:11px; }
+
+    .hero{ padding:32px 16px 28px; }
+    .hero::before{ width:180px; height:180px; right:-60px; top:-60px; border-width:40px; }
+    .hero h1{ max-width:100%; }
+    .hero p{ font-size:13.5px; }
+
+    .wrap{ padding:20px 16px 56px; }
+    .grid{ gap:16px; }
+    .panel{ padding:16px; border-radius:8px; }
+
+    .record-zone{ padding:18px 10px; }
+    .mic-btn{ width:68px; height:68px; font-size:24px; }
+
+    .score-row{ gap:12px; }
+    .score-dial{ width:72px; height:72px; }
+    .score-dial .n{ font-size:22px; }
+
+    .transcript-box{ max-height:200px; font-size:12.5px; }
+
+    .lang-chip{ font-size:11.5px; padding:9px 6px; }
+  }
+
+  @media(max-width:400px){
+    .lang-grid{ grid-template-columns:1fr 1fr; }
+    .hero h1{ font-size:24px; }
   }
 </style>
 </head>
@@ -262,14 +352,25 @@
       <div class="divider-or">or</div>
 
       <label class="upload-box" id="uploadBox">
-        📁 Click to upload a call recording (.mp3, .wav, .m4a) — long calls are split and analyzed automatically
+        <span class="upload-icon">📁</span>
+        <span>
+          Upload Call Recording
+          <span class="upload-hint">.mp3, .wav, .m4a — long calls split automatically</span>
+        </span>
         <input type="file" id="fileInput" accept="audio/*">
       </label>
 
       <audio id="audioPreview" controls style="display:none;"></audio>
 
       <button class="analyze-btn" id="analyzeBtn" disabled>Analyze Pitch</button>
-      <div class="status-line" id="statusLine"></div>
+      <div class="file-info-card" id="fileInfoCard">
+        <span class="icon">🎧</span>
+        <div>
+          <div class="name" id="fileInfoName"></div>
+          <div class="meta" id="fileInfoMeta"></div>
+        </div>
+      </div>
+      <div class="status-line" id="statusLine"><span id="statusIcon">ℹ️</span><span id="statusText"></span></div>
     </div>
 
     <!-- RIGHT: results panel -->
@@ -286,6 +387,10 @@
       </div>
 
       <div id="resultsContent" style="display:none;">
+        <div class="results-header">
+          <span></span>
+          <span class="reset-link" id="resetLink">↺ New analysis</span>
+        </div>
         <div class="score-row">
           <div class="score-dial"><span class="n" id="scoreNum">--</span><span class="lbl">/ 100</span></div>
           <div class="score-meta">
@@ -310,7 +415,10 @@
         </div>
 
         <div class="section-block">
-          <h4>📝 Transcript</h4>
+          <div class="transcript-header">
+            <h4 style="margin-bottom:0;">📝 Transcript</h4>
+            <button class="translate-btn" id="translateBtn" type="button">🌐 Translate to English</button>
+          </div>
           <div class="transcript-box" id="transcriptBox"></div>
         </div>
       </div>
@@ -331,6 +439,21 @@ const fileInput = document.getElementById('fileInput');
 const audioPreview = document.getElementById('audioPreview');
 const analyzeBtn = document.getElementById('analyzeBtn');
 const statusLine = document.getElementById('statusLine');
+const statusIcon = document.getElementById('statusIcon');
+const statusText = document.getElementById('statusText');
+const resetLink = document.getElementById('resetLink');
+const fileInfoCard = document.getElementById('fileInfoCard');
+const fileInfoName = document.getElementById('fileInfoName');
+const fileInfoMeta = document.getElementById('fileInfoMeta');
+
+function showFileInfo(name, meta){
+  fileInfoName.textContent = name;
+  fileInfoMeta.textContent = meta;
+  fileInfoCard.classList.add('visible');
+}
+function hideFileInfo(){
+  fileInfoCard.classList.remove('visible');
+}
 
 const resultsEmpty = document.getElementById('resultsEmpty');
 const loaderState = document.getElementById('loaderState');
@@ -343,6 +466,11 @@ const strengthsList = document.getElementById('strengthsList');
 const improveList = document.getElementById('improveList');
 const objectionList = document.getElementById('objectionList');
 const transcriptBox = document.getElementById('transcriptBox');
+const translateBtn = document.getElementById('translateBtn');
+
+let originalTranscript = '';
+let translatedTranscript = '';
+let showingTranslation = false;
 
 let selectedLang = 'auto';
 let mediaStream = null;
@@ -385,6 +513,9 @@ async function startRecording(){
 
     audioPreview.style.display = 'none';
     analyzeBtn.disabled = true;
+    uploadBox.classList.add('disabled-zone');
+    hideFileInfo();
+    setStatus('');
 
     startSegment();
 
@@ -399,8 +530,10 @@ async function startRecording(){
     }, 1000);
   }catch(err){
     console.error(err);
-    statusLine.textContent = 'Could not access microphone. Check browser permissions.';
-    statusLine.classList.add('error');
+    uploadBox.classList.remove('disabled-zone');
+    statusText.textContent = 'Could not access microphone. Check browser permissions.';
+    statusIcon.textContent = '⚠️';
+    statusLine.classList.add('error', 'visible');
   }
 }
 
@@ -431,9 +564,11 @@ function finalizeRecording(){
     recordedBlob = segmentBlobs[0];
     audioPreview.src = URL.createObjectURL(recordedBlob);
     audioPreview.style.display = 'block';
+    showFileInfo('Live recording', `${formatTime(recordingSeconds)} · ready to analyze`);
   }else{
     recordedBlob = null; // multi-segment: no single-file preview, but analysis still works
     audioPreview.style.display = 'none';
+    showFileInfo('Live recording', `${formatTime(recordingSeconds)} · split into ${segmentBlobs.length} segments · ready to analyze`);
   }
   analyzeBtn.disabled = false;
 }
@@ -446,9 +581,7 @@ function stopRecording(){
     micBtn.textContent = '🎙️';
     clearInterval(recordingTimerInterval);
     const segCount = segmentBlobs.length + 1;
-    recStatus.textContent = segCount > 1
-      ? `Recording captured (${segCount} segments, ${formatTime(recordingSeconds)}) — ready to analyze`
-      : 'Recording captured — ready to analyze';
+    recStatus.textContent = 'Recording captured — ready to analyze';
     if(currentRecorder.state === 'recording'){
       currentRecorder.stop();
     }else{
@@ -515,8 +648,7 @@ async function splitFileIntoWavSegments(file, segmentSeconds, targetSampleRate){
   return { blobs, duration };
 }
 
-fileInput.addEventListener('change', async () => {
-  const file = fileInput.files[0];
+async function handleUploadedFile(file){
   if(!file) return;
 
   isUploadedFile = true;
@@ -524,6 +656,7 @@ fileInput.addEventListener('change', async () => {
   recordedBlob = null;
   audioPreview.style.display = 'none';
   analyzeBtn.disabled = true;
+  micBtn.parentElement.classList.add('disabled-zone');
   setStatus('');
 
   // Small files: use as-is, no need to decode/re-encode (keeps original quality, faster)
@@ -532,21 +665,46 @@ fileInput.addEventListener('change', async () => {
     audioPreview.src = URL.createObjectURL(file);
     audioPreview.style.display = 'block';
     analyzeBtn.disabled = false;
-    recStatus.textContent = `Loaded: ${file.name}`;
+    showFileInfo(file.name, 'Ready to analyze');
     return;
   }
 
   // Long files: decode, downsample to 8kHz mono (telephone quality, plenty for speech), split into ~3 min pieces
-  recStatus.textContent = `Processing ${file.name}… this can take a moment for long files`;
+  showFileInfo(file.name, 'Processing… this can take a moment for long files');
   try{
     const { blobs, duration } = await splitFileIntoWavSegments(file, 180, 8000);
     segmentBlobs = blobs;
     analyzeBtn.disabled = false;
-    recStatus.textContent = `Loaded: ${file.name} (${formatTime(Math.round(duration))}, split into ${blobs.length} segments)`;
+    showFileInfo(file.name, `${formatTime(Math.round(duration))} · split into ${blobs.length} segments · ready to analyze`);
   }catch(err){
     console.error(err);
+    micBtn.parentElement.classList.remove('disabled-zone');
+    hideFileInfo();
     setStatus('Could not process this audio file. Try a different format (mp3, wav, or m4a) or check the file isn\'t corrupted.', true);
   }
+}
+
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  handleUploadedFile(file);
+});
+
+// Drag-and-drop support
+['dragenter', 'dragover'].forEach(evt => {
+  uploadBox.addEventListener(evt, (e) => {
+    e.preventDefault();
+    uploadBox.classList.add('dragover');
+  });
+});
+['dragleave', 'drop'].forEach(evt => {
+  uploadBox.addEventListener(evt, (e) => {
+    e.preventDefault();
+    uploadBox.classList.remove('dragover');
+  });
+});
+uploadBox.addEventListener('drop', (e) => {
+  const file = e.dataTransfer.files && e.dataTransfer.files[0];
+  if(file) handleUploadedFile(file);
 });
 
 // ---------- Analyze ----------
@@ -560,9 +718,35 @@ function blobToBase64(blob){
 }
 
 function setStatus(msg, isError){
-  statusLine.textContent = msg;
+  if(!msg){
+    statusLine.classList.remove('visible');
+    return;
+  }
+  statusText.textContent = msg;
+  statusIcon.textContent = isError ? '⚠️' : 'ℹ️';
   statusLine.classList.toggle('error', !!isError);
+  statusLine.classList.add('visible');
 }
+
+function resetAll(){
+  recordedBlob = null;
+  segmentBlobs = [];
+  isUploadedFile = false;
+  audioPreview.removeAttribute('src');
+  audioPreview.style.display = 'none';
+  fileInput.value = '';
+  recStatus.textContent = 'Tap the mic to start recording';
+  recTimer.textContent = '00:00';
+  analyzeBtn.disabled = true;
+  hideFileInfo();
+  setStatus('');
+  resultsContent.style.display = 'none';
+  loaderState.style.display = 'none';
+  resultsEmpty.style.display = 'flex';
+  micBtn.parentElement.classList.remove('disabled-zone');
+  uploadBox.classList.remove('disabled-zone');
+}
+resetLink.addEventListener('click', resetAll);
 
 function renderResults(data, transcript){
   loaderState.style.display = 'none';
@@ -578,8 +762,60 @@ function renderResults(data, transcript){
   objectionList.innerHTML = (data.objection_notes || []).map(s => `<li>${s}</li>`).join('') || '<li>No objection-handling moments detected.</li>';
 
   transcriptBox.textContent = transcript || '(No transcript returned)';
+  originalTranscript = transcript || '';
+  translatedTranscript = '';
+  showingTranslation = false;
+  translateBtn.textContent = '🌐 Translate to English';
+  translateBtn.classList.remove('showing-original');
+  translateBtn.disabled = !originalTranscript.trim();
+
   resultsContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
+
+translateBtn.addEventListener('click', async () => {
+  if(showingTranslation){
+    // Toggle back to original without another API call
+    transcriptBox.textContent = originalTranscript;
+    showingTranslation = false;
+    translateBtn.textContent = '🌐 Translate to English';
+    translateBtn.classList.remove('showing-original');
+    return;
+  }
+
+  if(translatedTranscript){
+    transcriptBox.textContent = translatedTranscript;
+    showingTranslation = true;
+    translateBtn.textContent = '↺ Show original';
+    translateBtn.classList.add('showing-original');
+    return;
+  }
+
+  translateBtn.disabled = true;
+  translateBtn.textContent = 'Translating…';
+  try{
+    const res = await fetch('/api/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript: originalTranscript })
+    });
+    if(!res.ok){
+      const errBody = await res.json().catch(() => ({}));
+      throw new Error(errBody.error || `Translation failed (${res.status})`);
+    }
+    const data = await res.json();
+    translatedTranscript = data.translated || '';
+    transcriptBox.textContent = translatedTranscript;
+    showingTranslation = true;
+    translateBtn.textContent = '↺ Show original';
+    translateBtn.classList.add('showing-original');
+  }catch(err){
+    console.error(err);
+    setStatus(err.message || 'Translation failed. Please try again.', true);
+    translateBtn.textContent = '🌐 Translate to English';
+  }finally{
+    translateBtn.disabled = false;
+  }
+});
 
 async function transcribeSingle(blob){
   const audioBase64 = await blobToBase64(blob);
