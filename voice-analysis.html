@@ -196,6 +196,24 @@
   .footer-note{
     margin-top:40px; font-size:12px; color:var(--text-mute); text-align:center;
   }
+
+  /* ---------- Loader ---------- */
+  .loader-state{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:340px; gap:16px; text-align:center; padding:20px;
+  }
+  .spinner{
+    width:52px; height:52px; border-radius:50%;
+    border:4px solid var(--line); border-top-color:var(--amber);
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .loader-state .loader-text{
+    font-family:var(--mono); font-size:12.5px; color:var(--text-mute);
+  }
+  .loader-state .loader-sub{
+    font-size:12px; color:var(--text-mute); max-width:32ch;
+  }
 </style>
 </head>
 <body>
@@ -261,6 +279,12 @@
         <p>Your transcript and coaching feedback will show up here once you record or upload a pitch and hit Analyze.</p>
       </div>
 
+      <div class="loader-state" id="loaderState" style="display:none;">
+        <div class="spinner"></div>
+        <div class="loader-text" id="loaderText">Uploading recording…</div>
+        <div class="loader-sub">Longer pitches take longer to analyze — usually 10-30 seconds.</div>
+      </div>
+
       <div id="resultsContent" style="display:none;">
         <div class="score-row">
           <div class="score-dial"><span class="n" id="scoreNum">--</span><span class="lbl">/ 100</span></div>
@@ -309,6 +333,8 @@ const analyzeBtn = document.getElementById('analyzeBtn');
 const statusLine = document.getElementById('statusLine');
 
 const resultsEmpty = document.getElementById('resultsEmpty');
+const loaderState = document.getElementById('loaderState');
+const loaderText = document.getElementById('loaderText');
 const resultsContent = document.getElementById('resultsContent');
 const scoreNum = document.getElementById('scoreNum');
 const scoreHeadline = document.getElementById('scoreHeadline');
@@ -319,12 +345,19 @@ const objectionList = document.getElementById('objectionList');
 const transcriptBox = document.getElementById('transcriptBox');
 
 let selectedLang = 'auto';
-let mediaRecorder = null;
-let audioChunks = [];
-let recordedBlob = null;
+let mediaStream = null;
+let currentRecorder = null;
+let segmentAudioChunks = [];
+let segmentBlobs = [];         // one Blob per ~4-minute segment (each is a complete, valid audio file)
+let segmentTimer = null;
+let recordedBlob = null;       // used for uploaded files, or a single short recording
 let recordingTimerInterval = null;
 let recordingSeconds = 0;
 let isRecording = false;
+let isUploadedFile = false;
+
+const SEGMENT_MS = 4 * 60 * 1000; // auto-split recordings into ~4 minute chunks
+const MAX_SINGLE_UPLOAD_BYTES = 3.2 * 1024 * 1024; // safe ceiling for a single non-segmented request
 
 // ---------- Language selection ----------
 langGrid.querySelectorAll('.lang-chip').forEach(chip => {
@@ -344,22 +377,20 @@ function formatTime(sec){
 
 async function startRecording(){
   try{
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    audioChunks = [];
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.ondataavailable = (e) => { if(e.data.size > 0) audioChunks.push(e.data); };
-    mediaRecorder.onstop = () => {
-      recordedBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-      audioPreview.src = URL.createObjectURL(recordedBlob);
-      audioPreview.style.display = 'block';
-      analyzeBtn.disabled = false;
-      stream.getTracks().forEach(t => t.stop());
-    };
-    mediaRecorder.start();
+    mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    segmentBlobs = [];
+    recordedBlob = null;
+    isUploadedFile = false;
     isRecording = true;
+
+    audioPreview.style.display = 'none';
+    analyzeBtn.disabled = true;
+
+    startSegment();
+
     micBtn.classList.add('recording');
     micBtn.textContent = '⏹️';
-    recStatus.textContent = 'Recording… tap to stop';
+    recStatus.textContent = 'Recording… tap to stop (long calls auto-split, no need to worry)';
     recordingSeconds = 0;
     recTimer.textContent = formatTime(0);
     recordingTimerInterval = setInterval(() => {
@@ -373,14 +404,56 @@ async function startRecording(){
   }
 }
 
+function startSegment(){
+  segmentAudioChunks = [];
+  currentRecorder = new MediaRecorder(mediaStream, { audioBitsPerSecond: 24000 });
+  currentRecorder.ondataavailable = (e) => { if(e.data.size > 0) segmentAudioChunks.push(e.data); };
+  currentRecorder.onstop = () => {
+    const blob = new Blob(segmentAudioChunks, { type: currentRecorder.mimeType || 'audio/webm' });
+    segmentBlobs.push(blob);
+    if(isRecording){
+      startSegment(); // keep going seamlessly into the next segment
+    }else{
+      finalizeRecording();
+    }
+  };
+  currentRecorder.start();
+  clearTimeout(segmentTimer);
+  segmentTimer = setTimeout(() => {
+    if(currentRecorder && currentRecorder.state === 'recording') currentRecorder.stop();
+  }, SEGMENT_MS);
+}
+
+function finalizeRecording(){
+  if(mediaStream){ mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+
+  if(segmentBlobs.length === 1){
+    recordedBlob = segmentBlobs[0];
+    audioPreview.src = URL.createObjectURL(recordedBlob);
+    audioPreview.style.display = 'block';
+  }else{
+    recordedBlob = null; // multi-segment: no single-file preview, but analysis still works
+    audioPreview.style.display = 'none';
+  }
+  analyzeBtn.disabled = false;
+}
+
 function stopRecording(){
-  if(mediaRecorder && isRecording){
-    mediaRecorder.stop();
-    isRecording = false;
+  if(currentRecorder && isRecording){
+    isRecording = false; // tells the onstop handler to finalize instead of starting a new segment
+    clearTimeout(segmentTimer);
     micBtn.classList.remove('recording');
     micBtn.textContent = '🎙️';
-    recStatus.textContent = 'Recording captured — ready to analyze';
     clearInterval(recordingTimerInterval);
+    const segCount = segmentBlobs.length + 1;
+    recStatus.textContent = segCount > 1
+      ? `Recording captured (${segCount} segments, ${formatTime(recordingSeconds)}) — ready to analyze`
+      : 'Recording captured — ready to analyze';
+    if(currentRecorder.state === 'recording'){
+      currentRecorder.stop();
+    }else{
+      finalizeRecording();
+    }
   }
 }
 
@@ -393,6 +466,8 @@ fileInput.addEventListener('change', () => {
   const file = fileInput.files[0];
   if(!file) return;
   recordedBlob = file;
+  segmentBlobs = [];
+  isUploadedFile = true;
   audioPreview.src = URL.createObjectURL(file);
   audioPreview.style.display = 'block';
   analyzeBtn.disabled = false;
@@ -415,6 +490,7 @@ function setStatus(msg, isError){
 }
 
 function renderResults(data, transcript){
+  loaderState.style.display = 'none';
   resultsEmpty.style.display = 'none';
   resultsContent.style.display = 'block';
 
@@ -430,39 +506,102 @@ function renderResults(data, transcript){
   resultsContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+async function transcribeSingle(blob){
+  const audioBase64 = await blobToBase64(blob);
+  const mimeType = blob.type || 'audio/webm';
+  const res = await fetch('/api/transcribe-chunk', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ audioBase64, mimeType, language: selectedLang })
+  });
+  if(!res.ok){
+    if(res.status === 413) throw new Error('One segment was too large to process. Please try again.');
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(errBody.error || `Transcription failed (${res.status})`);
+  }
+  const data = await res.json();
+  return data.transcript || '';
+}
+
 analyzeBtn.addEventListener('click', async () => {
-  if(!recordedBlob){
+  const hasSegments = segmentBlobs.length > 1;
+  if(!recordedBlob && !hasSegments){
     setStatus('Record or upload audio first.', true);
     return;
   }
 
+  // Uploaded files aren't auto-split, so they still need to fit in one request.
+  if(isUploadedFile && recordedBlob && recordedBlob.size > MAX_SINGLE_UPLOAD_BYTES){
+    setStatus('This file is too large to analyze in one go (~8 min limit for uploads). For longer calls, use the live Record button instead — it auto-splits long calls automatically.', true);
+    return;
+  }
+
   analyzeBtn.disabled = true;
-  setStatus('Uploading and analyzing… this can take 10-20 seconds.');
+  resultsEmpty.style.display = 'none';
+  resultsContent.style.display = 'none';
+  loaderState.style.display = 'flex';
+  loaderText.textContent = 'Uploading recording…';
+  setStatus('');
 
   try{
-    const audioBase64 = await blobToBase64(recordedBlob);
-    const mimeType = recordedBlob.type || 'audio/webm';
+    let analysis;
+    let fullTranscript;
 
-    // Single call: Gemini transcribes AND coaches the pitch in one shot
-    const analyzeRes = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ audioBase64, mimeType, language: selectedLang })
-    });
-    if(!analyzeRes.ok){
-      const errBody = await analyzeRes.json().catch(() => ({}));
-      throw new Error(errBody.error || `Analysis failed (${analyzeRes.status})`);
+    if(hasSegments){
+      // Long call: transcribe each ~4-minute segment separately, then run one coaching pass on the full text
+      const transcripts = [];
+      for(let i = 0; i < segmentBlobs.length; i++){
+        loaderText.textContent = `Transcribing segment ${i + 1} of ${segmentBlobs.length}…`;
+        const t = await transcribeSingle(segmentBlobs[i]);
+        if(t) transcripts.push(t);
+      }
+      fullTranscript = transcripts.join('\n\n');
+      if(!fullTranscript.trim()){
+        throw new Error('No speech detected in the recording.');
+      }
+
+      loaderText.textContent = 'Analyzing the full call…';
+      const analyzeRes = await fetch('/api/analyze-transcript', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript: fullTranscript, language: selectedLang })
+      });
+      if(!analyzeRes.ok){
+        const errBody = await analyzeRes.json().catch(() => ({}));
+        throw new Error(errBody.error || `Analysis failed (${analyzeRes.status})`);
+      }
+      analysis = await analyzeRes.json();
+    }else{
+      // Short recording or small upload: one call does transcription + coaching together
+      const audioBase64 = await blobToBase64(recordedBlob);
+      const mimeType = recordedBlob.type || 'audio/webm';
+      loaderText.textContent = 'Transcribing and analyzing your pitch…';
+
+      const analyzeRes = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audioBase64, mimeType, language: selectedLang })
+      });
+      if(!analyzeRes.ok){
+        if(analyzeRes.status === 413){
+          throw new Error('Recording too large for a single request. Try the live Record button for long calls — it auto-splits automatically.');
+        }
+        const errBody = await analyzeRes.json().catch(() => ({}));
+        throw new Error(errBody.error || `Analysis failed (${analyzeRes.status})`);
+      }
+      analysis = await analyzeRes.json();
+      fullTranscript = analysis.transcript || '';
+      if(!fullTranscript.trim()){
+        throw new Error('No speech detected in the recording.');
+      }
     }
-    const analysis = await analyzeRes.json();
 
-    if(!analysis.transcript || !analysis.transcript.trim()){
-      throw new Error('No speech detected in the recording.');
-    }
-
-    renderResults(analysis, analysis.transcript);
+    renderResults(analysis, fullTranscript);
     setStatus('Done.');
   }catch(err){
     console.error(err);
+    loaderState.style.display = 'none';
+    resultsEmpty.style.display = 'flex';
     setStatus(err.message || 'Something went wrong.', true);
   }finally{
     analyzeBtn.disabled = false;
