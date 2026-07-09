@@ -262,7 +262,7 @@
       <div class="divider-or">or</div>
 
       <label class="upload-box" id="uploadBox">
-        📁 Click to upload an audio file (.mp3, .wav, .m4a)
+        📁 Click to upload a call recording (.mp3, .wav, .m4a) — long calls are split and analyzed automatically
         <input type="file" id="fileInput" accept="audio/*">
       </label>
 
@@ -461,17 +461,92 @@ micBtn.addEventListener('click', () => {
   if(!isRecording) startRecording(); else stopRecording();
 });
 
-// ---------- File upload ----------
-fileInput.addEventListener('change', () => {
+// ---------- File upload (auto-splits long files, same as live recording) ----------
+function encodeWavPCM16(samples, sampleRate){
+  const numSamples = samples.length;
+  const dataSize = numSamples * 2; // 16-bit mono
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+  const writeString = (offset, str) => { for(let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); };
+  writeString(0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true); // mono
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeString(36, 'data');
+  view.setUint32(40, dataSize, true);
+  let offset = 44;
+  for(let i = 0; i < numSamples; i++, offset += 2){
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return new Blob([view], { type: 'audio/wav' });
+}
+
+async function splitFileIntoWavSegments(file, segmentSeconds, targetSampleRate){
+  const arrayBuffer = await file.arrayBuffer();
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const audioCtx = new AudioCtx();
+  const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+  const duration = audioBuffer.duration;
+
+  const offlineCtx = new OfflineAudioContext(1, Math.ceil(duration * targetSampleRate), targetSampleRate);
+  const source = offlineCtx.createBufferSource();
+  source.buffer = audioBuffer;
+  source.connect(offlineCtx.destination);
+  source.start(0);
+  const rendered = await offlineCtx.startRendering();
+  audioCtx.close();
+
+  const samples = rendered.getChannelData(0);
+  const sampleRate = rendered.sampleRate;
+  const segmentSamples = Math.floor(segmentSeconds * sampleRate);
+  const blobs = [];
+  for(let start = 0; start < samples.length; start += segmentSamples){
+    const end = Math.min(start + segmentSamples, samples.length);
+    blobs.push(encodeWavPCM16(samples.subarray(start, end), sampleRate));
+  }
+  return { blobs, duration };
+}
+
+fileInput.addEventListener('change', async () => {
   const file = fileInput.files[0];
   if(!file) return;
-  recordedBlob = file;
-  segmentBlobs = [];
+
   isUploadedFile = true;
-  audioPreview.src = URL.createObjectURL(file);
-  audioPreview.style.display = 'block';
-  analyzeBtn.disabled = false;
-  recStatus.textContent = `Loaded: ${file.name}`;
+  segmentBlobs = [];
+  recordedBlob = null;
+  audioPreview.style.display = 'none';
+  analyzeBtn.disabled = true;
+  setStatus('');
+
+  // Small files: use as-is, no need to decode/re-encode (keeps original quality, faster)
+  if(file.size <= MAX_SINGLE_UPLOAD_BYTES){
+    recordedBlob = file;
+    audioPreview.src = URL.createObjectURL(file);
+    audioPreview.style.display = 'block';
+    analyzeBtn.disabled = false;
+    recStatus.textContent = `Loaded: ${file.name}`;
+    return;
+  }
+
+  // Long files: decode, downsample to 8kHz mono (telephone quality, plenty for speech), split into ~3 min pieces
+  recStatus.textContent = `Processing ${file.name}… this can take a moment for long files`;
+  try{
+    const { blobs, duration } = await splitFileIntoWavSegments(file, 180, 8000);
+    segmentBlobs = blobs;
+    analyzeBtn.disabled = false;
+    recStatus.textContent = `Loaded: ${file.name} (${formatTime(Math.round(duration))}, split into ${blobs.length} segments)`;
+  }catch(err){
+    console.error(err);
+    setStatus('Could not process this audio file. Try a different format (mp3, wav, or m4a) or check the file isn\'t corrupted.', true);
+  }
 });
 
 // ---------- Analyze ----------
@@ -527,12 +602,6 @@ analyzeBtn.addEventListener('click', async () => {
   const hasSegments = segmentBlobs.length > 1;
   if(!recordedBlob && !hasSegments){
     setStatus('Record or upload audio first.', true);
-    return;
-  }
-
-  // Uploaded files aren't auto-split, so they still need to fit in one request.
-  if(isUploadedFile && recordedBlob && recordedBlob.size > MAX_SINGLE_UPLOAD_BYTES){
-    setStatus('This file is too large to analyze in one go (~8 min limit for uploads). For longer calls, use the live Record button instead — it auto-splits long calls automatically.', true);
     return;
   }
 
